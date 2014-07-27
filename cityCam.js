@@ -5,7 +5,7 @@ var camera = new RaspiCam({
   output: "./timelapse/image_%06d.jpg", // image_000001.jpg, image_000002.jpg,...
   encoding: "jpg",
   timelapse: 60000, // take a picture every 60 seconds
-  timeout: 86400 // take a total over 24 hours, in seconds 
+  timeout: 86400000 // take a total over 24 hours, in seconds 
 });
 
 camera.on("start", function( err, timestamp ){
