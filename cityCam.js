@@ -29,7 +29,7 @@ camera.on("read", function( err, timestamp, filename ){
 
   input.date = timestamp;
 
-  var data = fs.readFileSync("timelapse/"+filename);
+  var data = fs.readFileSync("timelapse/" + filename.split('~')[0]);
   input.image = new MongoDb.Binary(data);
   input.imageType = 'jpeg';
 
