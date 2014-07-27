@@ -1,4 +1,12 @@
 var RaspiCam = require("raspicam");
+var MongoDb = require("mongodb"),
+    ObjectID = MongoDb.ObjectID,
+    db = new MongoDb.Db("test", new MongoDb.Server("192.168.1.132", 27017, {auto_reconnect: true}, {})),
+    fs = require("fs");
+
+db.open(function (err, db) {
+  console.log("DB CONNECTED!!");
+});
 
 var camera = new RaspiCam({
   mode: "timelapse",
@@ -14,6 +22,26 @@ camera.on("start", function( err, timestamp ){
 
 camera.on("read", function( err, timestamp, filename ){
   console.log("timelapse image captured with filename: " + filename);
+  var input = {};
+  if(process.argv.length > 2){
+    input.name = process.argv[2];
+  }
+
+  input.date = timestamp;
+
+  var data = fs.readFileSync(filename);
+  input.image = new MongoDb.Binary(data);
+  input.imageType = 'jpeg';
+
+  db.collection('photos', function (error, collection) {
+    collection.save(input, {safe: true}, function (err, objects) {
+      if (err) {
+        res.json(error, 400);
+      } else if (objects === 1) {     //update
+      } else {                        //insert
+      }
+    });
+  });
 });
 
 camera.on("exit", function( timestamp ){
