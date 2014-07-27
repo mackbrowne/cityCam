@@ -12,7 +12,7 @@ var camera = new RaspiCam({
   mode: "timelapse",
   output: "./timelapse/image_%06d.jpg", // image_000001.jpg, image_000002.jpg,...
   encoding: "jpg",
-  timelapse: 60000, // take a picture every 60 seconds
+  timelapse: 6000, // take a picture every 60 seconds
   timeout: 86400000 // take a total over 24 hours, in seconds 
 });
 
@@ -29,14 +29,14 @@ camera.on("read", function( err, timestamp, filename ){
 
   input.date = timestamp;
 
-  var data = fs.readFileSync(filename);
+  var data = fs.readFileSync("timelapse/"+filename);
   input.image = new MongoDb.Binary(data);
   input.imageType = 'jpeg';
 
   db.collection('photos', function (error, collection) {
     collection.save(input, {safe: true}, function (err, objects) {
       if (err) {
-        res.json(error, 400);
+        console.log(err);
       } else if (objects === 1) {     //update
       } else {                        //insert
       }
