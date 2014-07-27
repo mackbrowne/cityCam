@@ -1,12 +1,17 @@
 var RaspiCam = require("raspicam");
 var MongoDb = require("mongodb"),
+    MongoClient = MongoDb.MongoClient,
     ObjectID = MongoDb.ObjectID,
-    db = new MongoDb.Db("test", new MongoDb.Server("192.168.1.132", 27017, {auto_reconnect: true}, {})),
+  //  db = new MongoDb.Db("test", new MongoDb.Server("192.168.1.132", 27017, {})),
     fs = require("fs");
 
-db.open(function (err, db) {
+MongoClient.connect("mongodb://cityCam:mack@ds053449.mongolab.com:53449/photos", function (err, db) {
+
+  if(err){
+   throw err;
+  }
+
   console.log("DB CONNECTED!!");
-});
 
 var camera = new RaspiCam({
   mode: "timelapse",
@@ -21,6 +26,10 @@ camera.on("start", function( err, timestamp ){
 });
 
 camera.on("read", function( err, timestamp, filename ){
+  if(filename.split(".jpg")[1].length>0){
+    console.log("incomplete file -" + filename.split(".jpg")[1]); 
+  }else{
+
   console.log("timelapse image captured with filename: " + filename);
   var input = {};
   if(process.argv.length > 2){
@@ -29,7 +38,7 @@ camera.on("read", function( err, timestamp, filename ){
 
   input.date = timestamp;
 
-  var data = fs.readFileSync("timelapse/" + filename.split('~')[0]);
+  var data = fs.readFileSync("./timelapse/" + filename);
   input.image = new MongoDb.Binary(data);
   input.imageType = 'jpeg';
 
@@ -38,10 +47,13 @@ camera.on("read", function( err, timestamp, filename ){
       if (err) {
         console.log(err);
       } else if (objects === 1) {     //update
+        console.log("update complete");
       } else {                        //insert
+        console.log("insert complete");
       }
     });
   });
+}
 });
 
 camera.on("exit", function( timestamp ){
@@ -58,3 +70,4 @@ camera.start();
 // setTimeout(function(){
 //  camera.stop();
 //  }, 10000);
+});
