@@ -17,7 +17,7 @@ MongoClient.connect("mongodb://cityCam:mack@ds053449.mongolab.com:53449/photos",
   }
   console.log("collection found");
 
-  collection.find().toArray(function(err, results) {
+  collection.find({"title": "whileIwasGone"}).toArray(function(err, results) {
     console.dir(results);
 
     results.forEach(function(result, index){
